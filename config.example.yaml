@@ -1,0 +1,30 @@
+## Meridian DDNS Updater — example configuration
+
+poll_interval: 300       # seconds between IP checks
+log_level: INFO
+state_file: /var/lib/meridian/state.json
+
+hosts:
+  - hostname: home.example.com
+    zone_id: Z0123456789ABCDEFGHIJ
+    ttl: 300
+    ipv4: true
+    ipv6: false
+
+  - hostname: dual.example.com
+    zone_id: Z0123456789ABCDEFGHIJ
+    ttl: 60
+    ipv4: true
+    ipv6: true
+
+provider:
+  name: route53
+  route53:
+    iam_roles_anywhere:
+      trust_anchor_arn: "arn:aws:rolesanywhere:us-east-1:123456789012:trust-anchor/abc-123"
+      profile_arn: "arn:aws:rolesanywhere:us-east-1:123456789012:profile/def-456"
+      role_arn: "arn:aws:iam::123456789012:role/MeridianDDNSRole"
+      certificate_path: /etc/meridian/certs/client.crt
+      private_key_path: /etc/meridian/certs/client.key
+      signing_helper_path: /usr/local/bin/aws_signing_helper
+      region: us-east-1

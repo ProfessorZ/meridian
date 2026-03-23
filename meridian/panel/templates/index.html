@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meridian DDNS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; padding: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: #38bdf8; }
+        .card { background: #1e293b; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; }
+        .card h2 { font-size: 1rem; color: #94a3b8; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .field { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #334155; }
+        .field:last-child { border-bottom: none; }
+        .label { color: #94a3b8; }
+        .value { font-family: monospace; color: #f1f5f9; }
+        .value.none { color: #64748b; font-style: italic; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: #94a3b8; padding: 0.5rem 0; border-bottom: 1px solid #334155; font-weight: 500; }
+        td { padding: 0.5rem 0; border-bottom: 1px solid #334155; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Meridian DDNS</h1>
+
+        <div class="card">
+            <h2>Current State</h2>
+            <div class="field">
+                <span class="label">IPv4</span>
+                <span class="value {% if not state.ipv4 %}none{% endif %}">{{ state.ipv4 or "not detected" }}</span>
+            </div>
+            <div class="field">
+                <span class="label">IPv6</span>
+                <span class="value {% if not state.ipv6 %}none{% endif %}">{{ state.ipv6 or "not detected" }}</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Configuration</h2>
+            <div class="field">
+                <span class="label">Poll Interval</span>
+                <span class="value">{{ config.poll_interval }}s</span>
+            </div>
+            <div class="field">
+                <span class="label">Provider</span>
+                <span class="value">{{ config.provider.name }}</span>
+            </div>
+            <div class="field">
+                <span class="label">Log Level</span>
+                <span class="value">{{ config.log_level }}</span>
+            </div>
+        </div>
+
+        {% if config.hosts %}
+        <div class="card">
+            <h2>Managed Hosts</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hostname</th>
+                        <th>Zone</th>
+                        <th>IPv4</th>
+                        <th>IPv6</th>
+                        <th>TTL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for host in config.hosts %}
+                    <tr>
+                        <td>{{ host.hostname }}</td>
+                        <td>{{ host.zone_id }}</td>
+                        <td>{{ "yes" if host.ipv4 else "no" }}</td>
+                        <td>{{ "yes" if host.ipv6 else "no" }}</td>
+                        <td>{{ host.ttl }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

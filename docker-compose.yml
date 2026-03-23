@@ -1,0 +1,27 @@
+services:
+  updater:
+    build: .
+    container_name: meridian-updater
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/etc/meridian/config.yaml:ro
+      - meridian-state:/var/lib/meridian
+      - ./certs:/etc/meridian/certs:ro
+    env_file:
+      - .env
+
+  panel:
+    build: .
+    container_name: meridian-panel
+    restart: unless-stopped
+    command: ["uvicorn", "meridian.panel.main:app", "--host", "0.0.0.0", "--port", "8080"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config.yaml:/etc/meridian/config.yaml:ro
+      - meridian-state:/var/lib/meridian
+    env_file:
+      - .env
+
+volumes:
+  meridian-state:
