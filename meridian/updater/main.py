@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import signal
 import sys
 from pathlib import Path
 
@@ -99,12 +100,25 @@ async def run(config: AppConfig) -> None:
     """Main loop — polls for IP changes at the configured interval."""
     logger.info("Meridian DDNS updater starting (poll interval: {s}s)", s=config.poll_interval)
 
-    while True:
+    stop_event = asyncio.Event()
+    loop = asyncio.get_running_loop()
+
+    def _shutdown_handler() -> None:
+        logger.info("Received shutdown signal, stopping")
+        stop_event.set()
+
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        loop.add_signal_handler(sig, _shutdown_handler)
+
+    while not stop_event.is_set():
         try:
             await _poll_and_update(config)
         except Exception as exc:
             logger.exception("Unhandled error during poll cycle: {exc}", exc=exc)
-        await asyncio.sleep(config.poll_interval)
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=config.poll_interval)
+        except asyncio.TimeoutError:
+            pass
 
 
 def main() -> None:
@@ -112,11 +126,7 @@ def main() -> None:
     config = load_config()
     _configure_logging(config.log_level)
     logger.info("Meridian DDNS updater initialized")
-
-    try:
-        asyncio.run(run(config))
-    except KeyboardInterrupt:
-        logger.info("Shutting down")
+    asyncio.run(run(config))
 
 
 if __name__ == "__main__":
