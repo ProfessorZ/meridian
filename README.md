@@ -11,6 +11,10 @@ Dynamic DNS updater that detects your public IP and updates DNS records automati
 - **Web panel** — optional FastAPI dashboard for status monitoring
 - **Docker-ready** — slim image, non-root user, volume-mounted config and state
 
+## Requirements
+
+The `aws_signing_helper` binary is bundled automatically in the Docker image. If running outside Docker, download it manually from the [AWS IAM Roles Anywhere documentation](https://docs.aws.amazon.com/rolesanywhere/latest/userguide/credential-helper.html).
+
 ## Quick Start
 
 ```bash
@@ -65,6 +69,15 @@ class MyProvider(DNSProvider):
         ...
 
 register_provider("myprovider", MyProvider)
+```
+
+## Running outside Docker
+
+```bash
+pip install -e .
+# or with panel:
+pip install -e ".[panel]"
+meridian  # starts the updater
 ```
 
 ## Development

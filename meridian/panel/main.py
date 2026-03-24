@@ -42,3 +42,10 @@ async def index(request: Request):
 async def health():
     """Health check endpoint."""
     return {"status": "ok"}
+
+
+def run() -> None:
+    """Entry point for the Meridian web panel."""
+    import uvicorn
+
+    uvicorn.run("meridian.panel.main:app", host="0.0.0.0", port=8080)
