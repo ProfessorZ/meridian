@@ -1,4 +1,5 @@
-"""Configuration loading from YAML file and environment variables."""  # @lat: configuration
+# @lat: [[meridian#Configuration]]
+"""Configuration loading from YAML file and environment variables."""
 
 from __future__ import annotations
 

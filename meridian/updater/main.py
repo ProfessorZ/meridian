@@ -1,4 +1,5 @@
-"""Meridian DDNS updater — main polling loop."""  # @lat: polling-loop
+# @lat: [[meridian#Core Polling Loop]]
+"""Meridian DDNS updater — main polling loop."""
 
 from __future__ import annotations
 

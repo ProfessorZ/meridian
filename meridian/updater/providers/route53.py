@@ -1,4 +1,5 @@
-"""AWS Route53 DNS provider implementation."""  # @lat: route53-provider
+# @lat: [[meridian#DNS Provider Plugin System]]
+"""AWS Route53 DNS provider implementation."""
 
 from __future__ import annotations
 

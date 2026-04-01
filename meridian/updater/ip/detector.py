@@ -1,4 +1,5 @@
-"""Public IP detection with multiple fallback sources."""  # @lat: ip-detection
+# @lat: [[meridian#IP Detection]]
+"""Public IP detection with multiple fallback sources."""
 
 from __future__ import annotations
 

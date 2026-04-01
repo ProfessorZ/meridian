@@ -1,4 +1,5 @@
-"""Provider registry for dynamic DNS provider lookup."""  # @lat: provider-system#Provider Registry
+# @lat: [[meridian#DNS Provider Plugin System]]
+"""Provider registry for dynamic DNS provider lookup."""
 
 from __future__ import annotations
 

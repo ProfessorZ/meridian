@@ -1,4 +1,5 @@
-"""Pydantic v2 models for Meridian DDNS updater."""  # @lat: data-models
+# @lat: [[meridian#Configuration]]
+"""Pydantic v2 models for Meridian DDNS updater."""
 
 from __future__ import annotations
 
