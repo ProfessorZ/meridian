@@ -1,4 +1,4 @@
-"""Meridian DDNS updater — main polling loop."""
+"""Meridian DDNS updater — main polling loop."""  # @lat: polling-loop
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ def _configure_logging(level: str) -> None:
     )
 
 
-def _load_state(path: Path) -> IPState:
+def _load_state(path: Path) -> IPState:  # @lat: state-management#Load and Save
     """Load cached IP state from disk."""
     if path.exists():
         try:
@@ -41,13 +41,13 @@ def _load_state(path: Path) -> IPState:
     return IPState()
 
 
-def _save_state(path: Path, state: IPState) -> None:
+def _save_state(path: Path, state: IPState) -> None:  # @lat: state-management#Load and Save
     """Persist IP state to disk."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(state.model_dump_json(indent=2))
 
 
-async def _poll_and_update(config: AppConfig) -> None:
+async def _poll_and_update(config: AppConfig) -> None:  # @lat: polling-loop
     """Run a single poll-and-update cycle.
 
     Detects current public IPs, compares against cached state,
@@ -96,7 +96,7 @@ async def _poll_and_update(config: AppConfig) -> None:
     await provider.close()
 
 
-async def run(config: AppConfig) -> None:
+async def run(config: AppConfig) -> None:  # @lat: polling-loop#Graceful Shutdown
     """Main loop — polls for IP changes at the configured interval."""
     logger.info("Meridian DDNS updater starting (poll interval: {s}s)", s=config.poll_interval)
 

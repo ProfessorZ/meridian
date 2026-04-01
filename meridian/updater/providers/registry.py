@@ -1,4 +1,4 @@
-"""Provider registry for dynamic DNS provider lookup."""
+"""Provider registry for dynamic DNS provider lookup."""  # @lat: provider-system#Provider Registry
 
 from __future__ import annotations
 

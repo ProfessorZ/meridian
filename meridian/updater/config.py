@@ -1,4 +1,4 @@
-"""Configuration loading from YAML file and environment variables."""
+"""Configuration loading from YAML file and environment variables."""  # @lat: configuration
 
 from __future__ import annotations
 

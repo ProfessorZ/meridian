@@ -1,4 +1,4 @@
-"""AWS Route53 DNS provider implementation."""
+"""AWS Route53 DNS provider implementation."""  # @lat: route53-provider
 
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ class Route53Provider(DNSProvider):
         )
         return session.client("route53")
 
-    def _refresh_credentials(self) -> None:
+    def _refresh_credentials(self) -> None:  # @lat: route53-provider#Credential Lifecycle
         """Re-obtain credentials and recreate the client."""
         logger.info("Refreshing IAM Roles Anywhere credentials")
         self._client = self._create_client()

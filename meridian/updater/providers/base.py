@@ -1,4 +1,4 @@
-"""Abstract DNS provider interface."""
+"""Abstract DNS provider interface."""  # @lat: provider-system#Provider Interface
 
 from __future__ import annotations
 

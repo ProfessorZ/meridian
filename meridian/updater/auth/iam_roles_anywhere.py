@@ -1,4 +1,4 @@
-"""AWS IAM Roles Anywhere credential acquisition via aws_signing_helper."""
+"""AWS IAM Roles Anywhere credential acquisition via aws_signing_helper."""  # @lat: authentication#IAM Roles Anywhere
 
 from __future__ import annotations
 

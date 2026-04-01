@@ -1,4 +1,4 @@
-"""Meridian web configuration panel — lightweight FastAPI app."""
+"""Meridian web configuration panel — lightweight FastAPI app."""  # @lat: web-panel
 
 from __future__ import annotations
 

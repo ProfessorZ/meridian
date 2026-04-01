@@ -1,4 +1,4 @@
-"""Pydantic v2 models for Meridian DDNS updater."""
+"""Pydantic v2 models for Meridian DDNS updater."""  # @lat: data-models
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ class RecordType(str, Enum):
     AAAA = "AAAA"
 
 
-class IPState(BaseModel):
+class IPState(BaseModel):  # @lat: data-models#Core Types
     """Cached IP state persisted between polling cycles."""
 
     ipv4: str | None = None
@@ -32,7 +32,7 @@ class DNSRecord(BaseModel):
     ttl: int = 300
 
 
-class HostConfig(BaseModel):
+class HostConfig(BaseModel):  # @lat: data-models#Core Types
     """Per-host configuration specifying which records to manage."""
 
     hostname: str
@@ -65,7 +65,7 @@ class HostConfig(BaseModel):
         return records
 
 
-class IAMRolesAnywhereConfig(BaseModel):
+class IAMRolesAnywhereConfig(BaseModel):  # @lat: data-models#Config Types
     """Configuration for AWS IAM Roles Anywhere authentication."""
 
     trust_anchor_arn: str
@@ -90,7 +90,7 @@ class ProviderConfig(BaseModel):
     route53: Route53ProviderConfig | None = None
 
 
-class AppConfig(BaseModel):
+class AppConfig(BaseModel):  # @lat: data-models#Config Types
     """Top-level application configuration."""
 
     poll_interval: int = Field(default=300, ge=10, description="Seconds between IP checks")
