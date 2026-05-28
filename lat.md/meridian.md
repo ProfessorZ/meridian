@@ -18,7 +18,18 @@ The system is composed of several interconnected modules.
 
 ## Entry Points
 
-The project defines two CLI entry points in pyproject.toml.
+The project defines two CLI entry points in `pyproject.toml`.
 
-- `meridian` CLI → `meridian.updater.main:main()` — starts the [[polling-loop]]
-- `meridian-panel` CLI → `meridian.panel.main:run()` — starts the [[web-panel]]
+- `meridian` CLI → [[meridian/updater/main.py#main]] — loads config, configures logging, starts the [[polling-loop]]
+- `meridian-panel` CLI → [[meridian/panel/main.py#run]] — starts the [[web-panel]] via uvicorn on port 8080
+
+## Dependencies
+
+Core runtime dependencies and their roles in the system.
+
+- **pydantic v2** — type-safe validation for all [[data-models]]
+- **pyyaml** — YAML parsing in [[configuration]]
+- **httpx** — async HTTP client for [[ip-detection]] sources
+- **loguru** — structured logging throughout all modules
+- **boto3** — AWS SDK used by [[route53-provider]] for DNS API calls
+- **fastapi / uvicorn / jinja2** — optional dependencies for the [[web-panel]]

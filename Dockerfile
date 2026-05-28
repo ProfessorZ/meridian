@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 
+COPY --from=ghcr.io/astral-sh/uv:0.10.4 /uv /uvx /bin/
+
 ARG TARGETARCH
 ARG SIGNING_HELPER_VERSION=1.8.0
 
@@ -7,10 +9,11 @@ RUN groupadd -r meridian && useradd -r -g meridian -d /home/meridian -s /sbin/no
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml uv.lock ./
+RUN UV_PROJECT_ENVIRONMENT=/usr/local uv sync --frozen --all-extras --no-dev --no-install-project --no-cache
 
 COPY meridian/ meridian/
+RUN UV_PROJECT_ENVIRONMENT=/usr/local uv sync --frozen --all-extras --no-dev --no-cache
 
 # Download AWS IAM Roles Anywhere signing helper
 # TARGETARCH is set by Docker BuildKit: amd64 | arm64

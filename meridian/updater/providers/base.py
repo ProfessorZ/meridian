@@ -1,4 +1,4 @@
-# @lat: [[meridian#DNS Provider Plugin System]]
+# @lat: [[provider-system#Provider Interface]]
 """Abstract DNS provider interface."""
 
 from __future__ import annotations

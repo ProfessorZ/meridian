@@ -1,0 +1,9 @@
+.claude
+.mcp.json
+.cursor
+.opencode
+.venv
+__pycache__/
+*.py[cod]
+*.egg-info/
+lat.md/.cache/

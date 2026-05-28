@@ -8,12 +8,22 @@ The Dockerfile builds a secure, lightweight container.
 
 - Base: `python:3.11-slim`
 - Non-root `meridian` user for least-privilege execution
-- AWS signing helper v1.8.0 downloaded as platform-specific binary via `TARGETARCH`
+- AWS signing helper v1.8.0 downloaded as platform-specific binary via `TARGETARCH` build arg
 - State directory at `/var/lib/meridian` owned by the meridian user
 
 ## Compose Services
 
 Docker Compose defines two services sharing config and state.
 
-- **updater** — main [[polling-loop]] service with config/certs mounted read-only, restart unless-stopped
+- **updater** — main [[polling-loop]] service with config/certs mounted read-only, restart `unless-stopped`
 - **panel** — optional [[web-panel]] on port 8080, reads same config and state volume
+
+## Volume Mounts
+
+Both services share three mount points for consistent operation.
+
+| Mount | Path | Mode | Purpose |
+|---|---|---|---|
+| Config | `/etc/meridian/config.yaml` | read-only | [[configuration]] YAML |
+| Certs | `/etc/meridian/certs/` | read-only | [[authentication]] X.509 certificate and key |
+| State | `/var/lib/meridian/` | read-write | [[state-management]] persistence |

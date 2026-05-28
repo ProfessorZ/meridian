@@ -83,8 +83,10 @@ meridian  # starts the updater
 ## Development
 
 ```bash
-pip install -r requirements.txt
-python -m meridian.updater.main
+uv sync --all-extras
+uv run meridian
+# optional panel:
+uv run meridian-panel
 ```
 
 ## License

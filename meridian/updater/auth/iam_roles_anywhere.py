@@ -1,4 +1,4 @@
-# @lat: [[meridian#IAM Roles Anywhere Authentication]]
+# @lat: [[authentication]]
 """AWS IAM Roles Anywhere credential acquisition via aws_signing_helper."""
 
 from __future__ import annotations
