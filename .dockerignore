@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtualenvs
+.venv/
+venv/
+ENV/
+env/
+
+# IDE / editor
+.idea/
+.vscode/
+.cursor/
+.claude/
+.mcp.json
+
+# Git
+.git/
+.gitignore
+
+# Tests & CI (not needed in image)
+tests/
+.github/
+*.md
+!README.md
+!CHANGELOG.md
+
+# Dev / misc
+lat.md/.cache/
+uv.lock
+.pre-commit-config.yaml
+Makefile
+justfile
+
+# Local config / secrets (never ship)
+config.yaml
+.env
+certs/
