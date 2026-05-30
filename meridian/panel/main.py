@@ -12,15 +12,16 @@ from fastapi.templating import Jinja2Templates
 
 from meridian.updater.config import load_config
 from meridian.updater.models import IPState
+from meridian.version import __version__
 
-app = FastAPI(title="Meridian DDNS Panel", version="1.0.0")
+app = FastAPI(title="Meridian DDNS Panel", version=__version__)
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     """Render the status/config dashboard."""
-    config = load_config()
+    config = load_config(quiet=True)
     state = IPState()
     if config.state_file.exists():
         try:

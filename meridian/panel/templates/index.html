@@ -35,6 +35,16 @@
                 <span class="label">IPv6</span>
                 <span class="value {% if not state.ipv6 %}none{% endif %}">{{ state.ipv6 or "not detected" }}</span>
             </div>
+            <div class="field">
+                <span class="label">Last Checked</span>
+                <span class="value {% if not state.last_checked %}none{% endif %}">{{ state.last_checked or "never" }}</span>
+            </div>
+            {% if state.last_error %}
+            <div class="field">
+                <span class="label">Last Error</span>
+                <span class="value" style="color:#f87171">{{ state.last_error }}</span>
+            </div>
+            {% endif %}
         </div>
 
         <div class="card">
