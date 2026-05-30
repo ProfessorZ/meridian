@@ -3,10 +3,11 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class RecordType(str, Enum):
@@ -15,10 +16,16 @@ class RecordType(str, Enum):
 
 
 class IPState(BaseModel):  # @lat: data-models#Core Types
-    """Cached IP state persisted between polling cycles."""
+    """Cached IP state persisted between polling cycles.
+
+    Enhanced with last_checked (updated every cycle) and last_error
+    for operational visibility (surfaced in web panel and notifications).
+    """
 
     ipv4: str | None = None
     ipv6: str | None = None
+    last_checked: datetime | None = None
+    last_error: str | None = None
 
     def has_changed(self, new_ipv4: str | None, new_ipv6: str | None) -> bool:
         return self.ipv4 != new_ipv4 or self.ipv6 != new_ipv6
@@ -85,10 +92,37 @@ class Route53ProviderConfig(BaseModel):
 
 
 class ProviderConfig(BaseModel):
-    """DNS provider configuration."""
+    """DNS provider configuration.
+
+    This model is intentionally extensible. It uses extra='allow' so that
+    new DNS providers can define their own configuration blocks (e.g.
+    `cloudflare: {...}` or `myprovider: {...}`) without requiring changes
+    to this core model.
+
+    Existing providers (currently only route53) continue to work unchanged.
+    """
+
+    model_config = ConfigDict(extra="allow")
 
     name: str = "route53"
     route53: Route53ProviderConfig | None = None
+
+
+class IPDetectionConfig(BaseModel):
+    """Optional override for public IP detection sources and timeouts."""
+
+    ipv4_sources: list[str] | None = None
+    ipv6_sources: list[str] | None = None
+    timeout: float | None = None
+
+
+class NotificationsConfig(BaseModel):
+    """Optional webhook notifications for important events."""
+
+    webhook_url: str | None = None
+    on_change: bool = True
+    on_error: bool = True
+    error_threshold: int = 3  # consecutive failures before sending error webhook
 
 
 class AppConfig(BaseModel):  # @lat: data-models#Config Types
@@ -99,3 +133,5 @@ class AppConfig(BaseModel):  # @lat: data-models#Config Types
     hosts: list[HostConfig] = Field(default_factory=list)
     provider: ProviderConfig = Field(default_factory=ProviderConfig)
     log_level: str = "INFO"
+    ip_detection: IPDetectionConfig | None = None
+    notifications: NotificationsConfig | None = None

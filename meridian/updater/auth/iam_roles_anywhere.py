@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
-import subprocess
+from asyncio.subprocess import PIPE
 from dataclasses import dataclass
 
 from loguru import logger
@@ -21,11 +22,12 @@ class TemporaryCredentials:
     session_token: str
 
 
-def obtain_credentials(config: IAMRolesAnywhereConfig) -> TemporaryCredentials:
+async def obtain_credentials(config: IAMRolesAnywhereConfig) -> TemporaryCredentials:
     """Obtain temporary AWS credentials using the aws_signing_helper binary.
 
-    Invokes the `credential-process` subcommand of aws_signing_helper,
-    which returns JSON-formatted temporary credentials suitable for
+    Invokes the `credential-process` subcommand of aws_signing_helper via
+    asyncio.create_subprocess_exec (non-blocking) so the async polling loop
+    is not stalled. Returns JSON-formatted temporary credentials suitable for
     boto3 session creation.
 
     Args:
@@ -36,6 +38,7 @@ def obtain_credentials(config: IAMRolesAnywhereConfig) -> TemporaryCredentials:
 
     Raises:
         RuntimeError: If the signing helper fails or returns invalid output.
+        asyncio.TimeoutError: If the helper does not respond within 30 seconds.
     """
     cmd = [
         str(config.signing_helper_path),
@@ -50,20 +53,25 @@ def obtain_credentials(config: IAMRolesAnywhereConfig) -> TemporaryCredentials:
 
     logger.debug("Invoking signing helper for role {role}", role=config.role_arn)
 
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        timeout=30,
+    proc = await asyncio.create_subprocess_exec(
+        cmd[0], *cmd[1:],
+        stdout=PIPE,
+        stderr=PIPE,
     )
+    try:
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=30)
+    except asyncio.TimeoutError:
+        proc.kill()
+        await proc.wait()
+        raise
 
-    if result.returncode != 0:
+    if proc.returncode != 0:
         raise RuntimeError(
-            f"aws_signing_helper failed (exit {result.returncode}): {result.stderr.strip()}"
+            f"aws_signing_helper failed (exit {proc.returncode}): {stderr.decode().strip()}"
         )
 
     try:
-        creds = json.loads(result.stdout)
+        creds = json.loads(stdout.decode())
     except json.JSONDecodeError as exc:
         raise RuntimeError(f"Failed to parse signing helper output: {exc}") from exc
 

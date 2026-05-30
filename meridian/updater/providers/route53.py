@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING
 
 import boto3
@@ -28,11 +29,11 @@ class Route53Provider(DNSProvider):
         if config.route53 is None:
             raise ProviderError("Route53 provider requires 'route53' configuration block")
         self._iam_config = config.route53.iam_roles_anywhere
-        self._client = self._create_client()
+        self._client = None  # created lazily on first use (async)
 
-    def _create_client(self):
-        """Create a boto3 Route53 client using IAM Roles Anywhere credentials."""
-        creds = obtain_credentials(self._iam_config)
+    async def _create_client(self):
+        """Create a boto3 Route53 client using IAM Roles Anywhere credentials (async)."""
+        creds = await obtain_credentials(self._iam_config)
         session = boto3.Session(
             aws_access_key_id=creds.access_key_id,
             aws_secret_access_key=creds.secret_access_key,
@@ -41,17 +42,29 @@ class Route53Provider(DNSProvider):
         )
         return session.client("route53")
 
-    def _refresh_credentials(self) -> None:  # @lat: route53-provider#Credential Lifecycle
-        """Re-obtain credentials and recreate the client."""
+    async def _refresh_credentials(self) -> None:  # @lat: route53-provider#Credential Lifecycle
+        # @lat: [[tests#Route53 Provider#Refreshes credentials and retries once on auth errors]]
+        # @lat: [[tests#Route53 Provider#Always raises ProviderError on failure]]
+        """Re-obtain credentials and recreate the client (async)."""
         logger.info("Refreshing IAM Roles Anywhere credentials")
-        self._client = self._create_client()
+        self._client = await self._create_client()
+
+    async def _ensure_client(self) -> None:
+        if self._client is None:
+            self._client = await self._create_client()
 
     async def update_record(self, record: DNSRecord, ip: str) -> None:
         """Upsert a Route53 DNS record.
 
         Uses UPSERT to create the record if it doesn't exist or update
-        it if it does. Automatically refreshes credentials on auth failure.
+        it if it does. The actual Route53 API call is dispatched via
+        asyncio.to_thread so the event loop is never blocked.
+
+        Automatically refreshes credentials on auth failure and retries
+        the operation once. All error paths (including the retry) raise
+        ProviderError so the polling loop can handle them per-record.
         """
+        await self._ensure_client()
         change_batch = {
             "Comment": f"Meridian DDNS update for {record.hostname}",
             "Changes": [
@@ -68,7 +81,8 @@ class Route53Provider(DNSProvider):
         }
 
         try:
-            self._client.change_resource_record_sets(
+            await asyncio.to_thread(
+                self._client.change_resource_record_sets,
                 HostedZoneId=record.zone_id,
                 ChangeBatch=change_batch,
             )
@@ -76,11 +90,23 @@ class Route53Provider(DNSProvider):
             error_code = exc.response["Error"]["Code"]
             if error_code in ("ExpiredTokenException", "InvalidSignatureException"):
                 logger.warning("Credentials expired, refreshing and retrying")
-                self._refresh_credentials()
-                self._client.change_resource_record_sets(
-                    HostedZoneId=record.zone_id,
-                    ChangeBatch=change_batch,
-                )
+                await self._refresh_credentials()
+                await self._ensure_client()
+                try:
+                    await asyncio.to_thread(
+                        self._client.change_resource_record_sets,
+                        HostedZoneId=record.zone_id,
+                        ChangeBatch=change_batch,
+                    )
+                except Exception as retry_exc:
+                    # Ensure the retry failure is also turned into ProviderError
+                    if isinstance(retry_exc, self._client.exceptions.ClientError):
+                        raise ProviderError(
+                            f"Route53 update failed for {record.hostname} after credential refresh: {retry_exc}"
+                        ) from retry_exc
+                    raise ProviderError(
+                        f"Route53 update failed for {record.hostname} after credential refresh: {retry_exc}"
+                    ) from retry_exc
             else:
                 raise ProviderError(
                     f"Route53 update failed for {record.hostname}: {exc}"
@@ -92,6 +118,16 @@ class Route53Provider(DNSProvider):
             host=record.hostname,
             ip=ip,
         )
+
+    async def close(self) -> None:
+        """Release the underlying boto3 client resources if present."""
+        if self._client is not None:
+            try:
+                await asyncio.to_thread(self._client.close)
+            except Exception:
+                # Best-effort; clients are usually safe to abandon
+                pass
+            self._client = None
 
 
 register_provider("route53", Route53Provider)
