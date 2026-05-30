@@ -11,3 +11,6 @@ This directory defines the high-level concepts, business logic, and architecture
 - [[web-panel]] — optional FastAPI monitoring dashboard
 - [[state-management]] — JSON file persistence for IP change detection
 - [[docker-deployment]] — multi-arch container build and compose services
+- [[limitations]] — known gaps between architecture and implementation that drive the feature-completeness effort
+- [[roadmap]] — planned work, items addressed in the current milestone, and explicitly deferred capabilities
+- [[tests]] — executable test specifications anchored to code via `@lat:` references (require-code-mention enabled)

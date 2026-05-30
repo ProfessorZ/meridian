@@ -17,5 +17,5 @@ Hierarchical configuration models validated at startup.
 
 - [[meridian/updater/models.py#IAMRolesAnywhereConfig]] — [[authentication]] parameters (ARNs, cert paths, region with defaults)
 - [[meridian/updater/models.py#Route53ProviderConfig]] — wraps `IAMRolesAnywhereConfig`
-- [[meridian/updater/models.py#ProviderConfig]] — provider selection (name + provider-specific config block)
-- [[meridian/updater/models.py#AppConfig]] — top-level: poll_interval (≥10s), state_file, hosts list, provider, log_level
+- [[meridian/updater/models.py#ProviderConfig]] — provider selection (name + provider-specific config block). Uses `extra='allow'` so new providers can be added without modifying this model.
+- [[meridian/updater/models.py#AppConfig]] — top-level: poll_interval (≥10s), state_file, hosts list, provider, log_level, ip_detection, notifications

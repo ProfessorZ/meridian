@@ -8,10 +8,12 @@ Each cycle:
 3. Run [[ip-detection]] for IPv4 and IPv6
 4. Compare against cached state — skip if unchanged
 5. For each configured host, expand to DNS records via [[meridian/updater/models.py#HostConfig|HostConfig.to_records()]] and call [[meridian/updater/providers/base.py#DNSProvider|provider.update_record()]]
-6. Persist new state to disk
+6. Persist new state to disk **only if the entire batch succeeded** (no ProviderErrors). Any failure leaves the old state so the affected records are retried next cycle.
 7. Wait for next cycle or shutdown signal
 
-Per-record error handling ensures a single failed update does not block other hosts — failures are logged via [[meridian/updater/providers/base.py#ProviderError]] and the loop continues.
+Per-record error handling ensures a single failed update does not block other hosts — failures are logged via [[meridian/updater/providers/base.py#ProviderError]] and the loop continues. The clean-batch state rule (see [[state-management]]) guarantees that transient provider errors cause automatic retries without waiting for the next public IP change.
+
+Provider instances are always closed via `try/finally` (even on early returns or unexpected exceptions inside a cycle).
 
 ## Graceful Shutdown
 

@@ -18,4 +18,4 @@ Factory pattern in [[meridian/updater/providers/registry.py#register_provider]] 
 - `register_provider(name, cls)` — called at module import time to register a provider class
 - `get_provider(config)` — looks up the configured provider name and instantiates it; raises `ValueError` if not found
 
-Currently [[route53-provider]] is the only registered provider. New providers register themselves by calling `register_provider()` at import time (side-effect registration pattern).
+Currently [[route53-provider]] is the only registered provider. New providers register themselves by calling `register_provider()` at import time (side-effect registration pattern). The configuration model (`ProviderConfig`) now supports arbitrary provider blocks via `extra='allow'`, fulfilling the original "without modifying core logic" goal.

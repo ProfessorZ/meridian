@@ -1,6 +1,6 @@
 # IP Detection
 
-Multi-source fallback IP detection in [[meridian/updater/ip/detector.py#detect_ipv4]] and [[meridian/updater/ip/detector.py#detect_ipv6]]. Uses httpx async client with 10-second timeout per source.
+Multi-source fallback IP detection in [[meridian/updater/ip/detector.py#detect_ipv4]] and [[meridian/updater/ip/detector.py#detect_ipv6]]. Uses httpx async client with 10-second timeout per source (configurable via `ip_detection` block in AppConfig).
 
 Each source is queried independently via [[meridian/updater/ip/detector.py#_query_source]]. On `httpx.HTTPError`, the failure is logged at debug level and the next source is tried. This ensures resilience against any single provider being down.
 

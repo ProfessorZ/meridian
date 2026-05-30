@@ -4,7 +4,7 @@ Certificate-based AWS authentication in [[meridian/updater/auth/iam_roles_anywhe
 
 ## IAM Roles Anywhere
 
-Uses the AWS `aws_signing_helper` binary to exchange an X.509 certificate and private key for temporary STS credentials. The helper is invoked via `subprocess.run()` with a 30-second timeout.
+The `aws_signing_helper` binary exchanges X.509 certs for temporary STS credentials. Invocation now uses `asyncio.create_subprocess_exec` (non-blocking) with 30s timeout to avoid stalling the [[polling-loop]].
 
 JSON output is parsed into [[meridian/updater/auth/iam_roles_anywhere.py#TemporaryCredentials]], a frozen dataclass holding `access_key_id`, `secret_access_key`, and `session_token`.
 
@@ -16,8 +16,8 @@ Required parameters (from [[data-models#Config Types|IAMRolesAnywhereConfig]]):
 
 ## Error Handling
 
-The credential process fails fast on subprocess errors.
+The credential process fails fast on helper errors (now using asyncio primitives).
 
 - Non-zero exit code → `RuntimeError` with stderr message
 - Invalid JSON output → `RuntimeError` with parse error details
-- Timeout after 30 seconds → subprocess `TimeoutExpired` exception
+- Timeout after 30 seconds → `asyncio.TimeoutError` (converted internally)
