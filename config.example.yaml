@@ -4,6 +4,22 @@ poll_interval: 300       # seconds between IP checks
 log_level: INFO
 state_file: /var/lib/meridian/state.json
 
+# Optional: override public IP detection sources or timeout
+# ip_detection:
+#   ipv4_sources:
+#     - https://api4.ipify.org
+#     - https://ipv4.icanhazip.com
+#   ipv6_sources:
+#     - https://api6.ipify.org
+#   timeout: 8.0
+
+# Optional notifications (webhook on successful IP change or repeated errors)
+# notifications:
+#   webhook_url: "https://example.com/webhooks/meridian"
+#   on_change: true
+#   on_error: true
+#   error_threshold: 3
+
 hosts:
   - hostname: home.example.com
     zone_id: Z0123456789ABCDEFGHIJ
@@ -28,3 +44,13 @@ provider:
       private_key_path: /etc/meridian/certs/client.key
       signing_helper_path: /usr/local/bin/aws_signing_helper
       region: us-east-1
+
+# To add a new DNS provider in the future, you would use your own block:
+# provider:
+#   name: myprovider
+#   myprovider:
+#     some_key: value
+#     another_setting: 123
+#
+# The plugin system (ProviderConfig + registry) now supports this without
+# modifying core models. See README "Adding a DNS Provider" section.

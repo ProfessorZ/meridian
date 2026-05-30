@@ -55,14 +55,18 @@ meridian/
 
 ## Adding a DNS Provider
 
-Implement the `DNSProvider` interface and register it:
+The provider system is designed to be truly extensible. Because `ProviderConfig` uses `extra='allow'`, you can add new providers without modifying any core Pydantic models.
+
+1. Implement the interface:
 
 ```python
 from meridian.updater.providers.base import DNSProvider
 from meridian.updater.providers.registry import register_provider
 
 class MyProvider(DNSProvider):
-    def __init__(self, config):
+    def __init__(self, config: "ProviderConfig") -> None:
+        # Access your config via config.model_extra["myprovider"] or similar
+        my_settings = getattr(config, "myprovider", None) or config.model_extra.get("myprovider", {})
         ...
 
     async def update_record(self, record, ip):
@@ -70,6 +74,17 @@ class MyProvider(DNSProvider):
 
 register_provider("myprovider", MyProvider)
 ```
+
+2. In your config file:
+
+```yaml
+provider:
+  name: myprovider
+  myprovider:
+    some_key: value
+```
+
+See `lat.md/provider-system.md` and `lat.md/roadmap.md` for the design intent.
 
 ## Running outside Docker
 
